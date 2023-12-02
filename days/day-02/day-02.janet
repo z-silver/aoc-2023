@@ -48,6 +48,5 @@
 
 (defn main [_ file & _]
   (def input @"")
-  (valid? {:game-id :none :red 1 :blue 2 :green 3})
   (:read (os/open file :r) :all input)
   (pp ((peg/match (peg/compile grammar) input) 0)))
