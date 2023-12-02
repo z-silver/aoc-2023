@@ -1,2 +1,2 @@
 #!/bin/sh
-./day-01.sed | dc
+./day-01.sed <$1 | dc
