@@ -1,2 +1,0 @@
-#!/bin/sh
-./day-01.sed <$1 | dc
