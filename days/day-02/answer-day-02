@@ -1,2 +1,0 @@
-#!/bin/sh
-./day-02.janet $1
