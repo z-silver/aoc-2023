@@ -22,7 +22,7 @@
     @{:game-id 0 :red 0 :blue 0 :green 0}
     entries))
 
-(def grammar
+(def grammar*
   ~{:main (replace :all-games ,add-results)
     :all-games (group (* (any :game-max) -1))
 
@@ -46,7 +46,10 @@
       (group (* :game-id :game-samples))
       ,capture->game-max)})
 
-(defn main [_ file & _]
-  (def input @"")
-  (:read (os/open file :r) :all input)
-  (pp ((peg/match (peg/compile grammar) input) 0)))
+(def grammar (peg/compile grammar*))
+
+(defn main [& _]
+  (->> (:read stdin :all)
+    (peg/match grammar)
+    first
+    pp))
