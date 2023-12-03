@@ -4,6 +4,7 @@
   (peg/match
     ~(any (+ (/ ':d ,first)
             (* "." (constant :space))
+            (* "*" (constant :asterisk))
             (* 1 (constant :symbol))))
     line))
 
@@ -15,15 +16,23 @@
       acc))
   (reduce maybe-add-value 0 positions))
 
-(defn schematic->symbol-positions [schematic]
+(defn schematic->positions [include? schematic]
   (def height (length schematic))
   (def width (-> schematic first length))
   (def positions @{})
   (loop [row :range [0 height]
          col :range [0 height]]
-    (when (= :symbol ((schematic row) col))
-      (put positions [row col] true)))
+    (when (include? (get-in schematic [row col]))
+      (put positions [row col] [row col])))
   positions)
+
+(defn schematic->symbol-positions [schematic]
+  (schematic->positions
+    |(or (= :asterisk $) (= :symbol $))
+    schematic))
+
+(defn schematic->asterisk-positions [schematic]
+  (schematic->positions |(= :asterisk $) schematic))
 
 (defn position->neighbors [rows cols [row* col*]]
   (def neighborhood @[])
@@ -86,17 +95,47 @@
       (symbols position)))
   (reduce step false (num :neighbors)))
 
-(defn solve-1 [input]
+(defn solve-1 [_ input]
   (def numbers (input->numbers input))
-  (def schematic (input->schematic input))
-  (def symbols (schematic->symbol-positions schematic))
+  (def symbols
+    (-> input
+      input->schematic
+      schematic->symbol-positions))
   (def parts (filter |(adjacent-to? symbols $) numbers))
   (->> parts
     (map |(get $ :value))
     (reduce + 0)))
 
+(defn gear->ratio [schematic position]
+  (def rows (length schematic))
+  (def cols (-> schematic first length))
+  (cond
+    (not= :asterisk (get-in schematic position)) 0
+    :else
+    (->> position
+      (position->neighbors rows cols)
+      (reduce
+        (fn [acc position*]
+          (def value (get-in schematic position*))
+          (if (number? value)
+            (put acc position* value)
+            acc))
+        @{})
+      pp
+      ((fn [_] 0)))))
 
-(defn main [& _]
+(defn solve-2 [_ input]
+  (def schematic (input->schematic input))
+  (->> schematic
+    schematic->asterisk-positions
+    (map |(gear->ratio schematic $))))
+#pp
+#(mapcat values)
+#(reduce + 0)
+
+(def problems {:1 solve-1 :2 solve-2})
+
+(defn main [_ part & _]
   (->> (:read stdin :all)
-    solve-1
+    ((keyword part) problems)
     pp))

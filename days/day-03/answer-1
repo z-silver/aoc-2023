@@ -1,2 +1,2 @@
 #!/bin/sh
-./solution.janet <$1
+./solution.janet 1 <$1
