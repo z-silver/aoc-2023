@@ -1,2 +1,2 @@
 #!/bin/sh
-./part-1.sed <$1 | head
+./part-1.sed <$1 | dc
