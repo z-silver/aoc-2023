@@ -1,14 +1,24 @@
 #!/usr/bin/env janet
+
+(var last-digit-grammar @{})
+
+(defn last-digit [] last-digit-grammar)
+
 (def grammar*
- ~{:main
-   (replace (group (any :calibration-number))
-     ,|(reduce + 0 $))
+ ~{:main (any :calibration-number)
+
+   :non-delimiter (* (! "\n") 1)
+
+   :first-calibration-digit
+   (+ :calibration-digit (* :non-delimiter :first-calibration-digit))
+
+   :last-calibration-digit
+   (+ (* :non-delimiter :last-calibration-digit) :calibration-digit)
 
    :calibration-number
-   (replace
-     (group (* (some (+ :calibration-digit (* (! "\n") 1)))
-              "\n"))
-     ,|(parse (string (first $) (last $))))
+   (cmt (group '(* :first-calibration-digit (thru "\n")))
+     ,|(parse (string (first $)
+                (last (peg/match (last-digit) (last $))))))
 
    :calibration-digit
    (+ ':d
@@ -22,10 +32,16 @@
      (* "eight" (constant "8"))
      (* "nine" (constant "9")))})
 
+(set last-digit-grammar
+  (-> grammar*
+    struct/to-table
+    (update :main (fn [_] '(* :last-calibration-digit (thru "\n"))))
+    table/to-struct))
+
 (def grammar (peg/compile grammar*))
 
 (defn main [& _]
   (->> (:read stdin :all)
     (peg/match grammar)
-    first
+    (reduce + 0)
     pp))
