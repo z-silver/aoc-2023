@@ -1,16 +1,16 @@
 #!/usr/bin/env janet
 (def grammar*
  ~{:main
-   (replace (group (any :callibration-number))
+   (replace (group (any :calibration-number))
      ,|(reduce + 0 $))
 
-   :callibration-number
+   :calibration-number
    (replace
-     (group (* (some (+ :callibration-digit (* (! "\n") 1)))
+     (group (* (some (+ :calibration-digit (* (! "\n") 1)))
               "\n"))
      ,|(parse (string (first $) (last $))))
 
-   :callibration-digit
+   :calibration-digit
    (+ ':d
      (* "one" (constant "1"))
      (* "two" (constant "2"))
