@@ -9,10 +9,18 @@
     (<= (game :green) max-green)
     (<= (game :blue) max-blue)))
 
-(defn add-results [results]
-  (->> results
+(defn add-ids [games]
+  (->> games
     (filter valid?)
     (map |($ :game-id))
+    (reduce + 0)))
+
+(defn power [game]
+  (* (game :red) (game :green) (game :blue)))
+
+(defn add-powers [games]
+  (->> games
+    (map power)
     (reduce + 0)))
 
 (defn capture->game-max [entries]
@@ -22,7 +30,7 @@
     @{:game-id 0 :red 0 :blue 0 :green 0}
     entries))
 
-(def grammar-1*
+(def grammar*
   ~{:main (* (any :game-max) -1)
 
     :color-sample
@@ -45,11 +53,12 @@
       (group (* :game-id :game-samples))
       ,capture->game-max)})
 
-(def grammar-1 (peg/compile grammar-1*))
+(def grammar (peg/compile grammar*))
 
-(defn part-1 [_ input] (->> input (peg/match grammar-1) add-results))
+(defn part-1 [_ input] (->> input (peg/match grammar) add-ids))
+(defn part-2 [_ input] (->> input (peg/match grammar) add-powers))
 
 (defn main [_ part & _]
   (->> (:read stdin :all)
-    ((keyword part) {:1 part-1})
+    ((keyword part) {:1 part-1 :2 part-2})
     pp))
