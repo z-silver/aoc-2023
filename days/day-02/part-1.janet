@@ -23,8 +23,7 @@
     entries))
 
 (def grammar*
-  ~{:main (replace :all-games ,add-results)
-    :all-games (group (* (any :game-max) -1))
+  ~{:main (* (any :game-max) -1)
 
     :color-sample
     (replace
@@ -48,8 +47,8 @@
 
 (def grammar (peg/compile grammar*))
 
-(defn main [& _]
+(defn main [_ part & _]
   (->> (:read stdin :all)
     (peg/match grammar)
-    first
+    add-results
     pp))
