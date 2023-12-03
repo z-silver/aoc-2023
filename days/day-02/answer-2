@@ -1,0 +1,2 @@
+#!/bin/sh
+./solution.janet 2 <$1
