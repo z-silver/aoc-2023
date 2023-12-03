@@ -22,7 +22,7 @@
     @{:game-id 0 :red 0 :blue 0 :green 0}
     entries))
 
-(def grammar*
+(def grammar-1*
   ~{:main (* (any :game-max) -1)
 
     :color-sample
@@ -45,10 +45,11 @@
       (group (* :game-id :game-samples))
       ,capture->game-max)})
 
-(def grammar (peg/compile grammar*))
+(def grammar-1 (peg/compile grammar-1*))
+
+(defn part-1 [_ input] (->> input (peg/match grammar-1) add-results))
 
 (defn main [_ part & _]
   (->> (:read stdin :all)
-    (peg/match grammar)
-    add-results
+    ((keyword part) {:1 part-1})
     pp))
