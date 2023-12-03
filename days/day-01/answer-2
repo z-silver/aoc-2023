@@ -1,0 +1,2 @@
+#!/bin/sh
+./part-2.janet <$1
